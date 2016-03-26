@@ -32,9 +32,7 @@ public class MatchScreen implements Screen {
 
         match.update();
 
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
         match.draw(renderer);
-        renderer.end();
     }
 
     @Override

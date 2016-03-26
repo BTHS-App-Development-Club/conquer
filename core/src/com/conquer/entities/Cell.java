@@ -14,8 +14,8 @@ public class Cell {
         this.targetX = -1;
         this.targetY = -1;
 
-        this.size = 10;
-        this.speed = 3;
+        this.size = 100;
+        this.speed = 5;
     }
 
     public void setLoc(float x, float y) {
@@ -53,6 +53,14 @@ public class Cell {
         moveY = this.targetY < this.y ? -moveY : moveY;
 
         setLoc(this.x + moveX, this.y + moveY);
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public void changeSize(int offset) {
+        size += offset;
     }
 
 }
