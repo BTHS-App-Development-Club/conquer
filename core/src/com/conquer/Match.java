@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.conquer.entities.Cell;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Match {
     public Selector selector;
@@ -19,6 +20,7 @@ public class Match {
 
         cells = new ArrayList<Cell>();
         cells.add(createCell(200, 200, "GREEN"));
+        cells.add(createCell(400, 400, "RED"));
 
         selector = new Selector();
     }
@@ -37,7 +39,11 @@ public class Match {
         if (selector.selected != -1) {
             renderer.setColor(1, 1, 1, 0.5F);
             Cell selected = getCell(selector.getSelected());
-            renderer.circle(selected.x, selected.y, selector.getCharge());
+            if (selected == null) {
+                selector.removeSelected();
+            } else {
+                renderer.circle(selected.x, selected.y, selector.getCharge());
+            }
         }
         renderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -46,10 +52,19 @@ public class Match {
     public void update() {
         selector.handle();
 
-        for (Cell cell : cells) {
-
+        Iterator<Cell> cellIterator = cells.iterator();
+        while (cellIterator.hasNext()) {
+            Cell cell = cellIterator.next();
             if (cell.hasTarget())
                 cell.moveToTargetLoc();
+
+            for (Cell other : cells) {
+                cell.collideWith(other);
+            }
+
+            if (cell.remove) {
+                cellIterator.remove();
+            }
         }
     }
 
@@ -105,20 +120,33 @@ public class Match {
                     charge = charge + 1 > cell.size ? cell.size : charge + 1;
                 } else if (selected != -1 && !charging) {
                     Cell cell = getCell(selected);
-                    cell.changeSize(-charge);
+                    if (charge < 5 && charge != 0 || cell.size - charge < 5 && cell.size - charge != 0 ||
+                            getCell(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()) != null
+                                    && cell.id == getCell(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()).id) {
+                        selected = -1;
+                        charge = 0;
+                        return;
+                    }
 
-                    Cell projectile = createCell(cell.x, cell.y, cell.faction);
+                    cell.changeSize(-charge);
+                    Cell projectile = cell.size == 0 ? cell : createCell(cell.x, cell.y, cell.faction);
+                    projectile.setImmuneTo(cell.id, cell.size);
                     projectile.setSize(charge);
                     projectile.setTargetLoc(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
                     addCell(projectile);
 
-                    selected = -1;
-                    charge = 0;
+                    removeSelected();
+                } else if (selected != -1 && !charging && charge < 5) {
+                    removeSelected();
                 }
             } else {
-                System.out.println(charge);
                 charging = false;
             }
+        }
+
+        public void removeSelected() {
+            selected = -1;
+            charge = 0;
         }
 
         public int getSelected() {
