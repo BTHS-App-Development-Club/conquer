@@ -91,9 +91,7 @@ public class Match {
 
     public Cell createCell(float x, float y, String faction) {
         uniqueID++;
-        Cell cell = new Cell(uniqueID, x, y, faction);
-
-        return cell;
+        return new Cell(uniqueID, x, y, faction);
     }
 
     public void addCell(Cell cell) {
@@ -115,10 +113,12 @@ public class Match {
                     Cell cell = getCell(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
                     selected = cell != null ? cell.id : -1;
                     charging = true;
-                } else if (selected != -1 && charging) {
+                } else if (charging) {
                     Cell cell = getCell(selected);
                     charge = charge + 1 > cell.size ? cell.size : charge + 1;
-                } else if (selected != -1 && !charging) {
+                } else if (charge < 5) {
+                    removeSelected();
+                } else {
                     Cell cell = getCell(selected);
                     if (charge < 5 && charge != 0 || cell.size - charge < 5 && cell.size - charge != 0 ||
                             getCell(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()) != null
@@ -135,8 +135,6 @@ public class Match {
                     projectile.setTargetLoc(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
                     addCell(projectile);
 
-                    removeSelected();
-                } else if (selected != -1 && !charging && charge < 5) {
                     removeSelected();
                 }
             } else {
