@@ -10,14 +10,11 @@ public class MatchScreen implements Screen {
 
     private Match match;
     private ShapeRenderer renderer;
-    int count;
 
     public MatchScreen(Match match) {
         this.match = match;
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
-
-        count = 0;
     }
 
     @Override

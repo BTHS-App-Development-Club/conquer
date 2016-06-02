@@ -14,13 +14,20 @@ public class Match {
     public Selector selector;
     public int uniqueID;
     private ArrayList<Cell> cells;
+    private int interval;
 
     public Match() {
         uniqueID = 0;
+        interval = 0;
 
         cells = new ArrayList<Cell>();
-        cells.add(createCell(200, 200, "GREEN"));
-        cells.add(createCell(400, 400, "RED"));
+        cells.add(createCell(88, 384, "GREEN").setSize(100));
+        cells.add(createCell(132, 100, "GREEN").setSize(60));
+        cells.add(createCell(308, 336, "RED").setSize(25));
+        cells.add(createCell(668, 370, "RED").setSize(100));
+        cells.add(createCell(712, 60, "RED").setSize(60));
+
+        cells.add(createCell(484, 130, "GREEN").setSize(25));
 
         selector = new Selector();
     }
@@ -28,7 +35,12 @@ public class Match {
     public void draw(ShapeRenderer renderer) {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         for (Cell cell : cells) {
-            renderer.setColor(Color.GREEN);
+            if (cell.faction.equals("GREEN")) {
+                renderer.setColor(Color.GREEN);
+            } else if (cell.faction.equals("RED")) {
+                renderer.setColor(Color.RED);
+            }
+
             renderer.circle(cell.x, cell.y, cell.size);
         }
         renderer.end();
@@ -55,6 +67,11 @@ public class Match {
         Iterator<Cell> cellIterator = cells.iterator();
         while (cellIterator.hasNext()) {
             Cell cell = cellIterator.next();
+
+            if (interval % 50 == 0) {
+                cell.changeSize(1);
+            }
+
             if (cell.hasTarget())
                 cell.moveToTargetLoc();
 
@@ -66,6 +83,7 @@ public class Match {
                 cellIterator.remove();
             }
         }
+        interval++;
     }
 
     public Cell getCell(int id) {
@@ -108,6 +126,9 @@ public class Match {
         }
 
         public void handle() {
+            if (interval % 50 == 0)
+                charge++;
+
             if (Gdx.input.isTouched()) {
                 if (selected == -1) {
                     Cell cell = getCell(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());

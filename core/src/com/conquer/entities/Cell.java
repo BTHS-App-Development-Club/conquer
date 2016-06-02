@@ -111,8 +111,9 @@ public class Cell {
         setLoc(this.x + moveX, this.y + moveY);
     }
 
-    public void setSize(int size) {
+    public Cell setSize(int size) {
         this.size = size;
+        return this;
     }
 
     public void changeSize(int offset) {
